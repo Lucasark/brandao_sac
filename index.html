@@ -103,23 +103,37 @@
           }
         });
 
-        // Gráfico de Linha
+        // Dados para gráfico de linha
         const parcelas = data.map(p => p.parcela);
-        const pagamentosParciais = data.map(p => p.pagamento_parcial);
+        const pagosLinha = data.map(p => p.pago === "S" ? p.pagamento_parcial : null);
+        const naoPagosLinha = data.map(p => p.pago === "N" ? p.pagamento_parcial : null);
+
         const ctxLinha = document.getElementById('graficoLinha').getContext('2d');
         new Chart(ctxLinha, {
           type: 'line',
           data: {
             labels: parcelas,
-            datasets: [{
-              label: 'Pagamento Parcial (R$)',
-              data: pagamentosParciais,
-              fill: false,
-              borderColor: '#2196F3',
-              tension: 0.1,
-              pointRadius: 4,
-              pointBackgroundColor: '#2196F3'
-            }]
+            datasets: [
+              {
+                label: 'Pagos',
+                data: pagosLinha,
+                fill: false,
+                borderColor: '#4CAF50',
+                tension: 0.1,
+                pointRadius: 4,
+                pointBackgroundColor: '#4CAF50'
+              },
+              {
+                label: 'Não pagos',
+                data: naoPagosLinha,
+                fill: false,
+                borderColor: '#BDBDBD',
+                borderDash: [5, 5],
+                tension: 0.1,
+                pointRadius: 4,
+                pointBackgroundColor: '#BDBDBD'
+              }
+            ]
           },
           options: {
             scales: {
@@ -135,6 +149,11 @@
                   text: 'Valor Pago (R$)'
                 },
                 beginAtZero: false
+              }
+            },
+            plugins: {
+              legend: {
+                position: 'bottom'
               }
             }
           }
