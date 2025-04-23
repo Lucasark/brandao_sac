@@ -21,6 +21,10 @@
       margin-top: 20px;
       font-weight: bold;
     }
+    #graficoLinha {
+        max-width: 1000px;
+        height: 1000px;
+    }
     table {
       margin: 40px auto;
       border-collapse: collapse;
@@ -40,7 +44,8 @@
   </style>
 </head>
 <body>
-  <h1>Gráficos de Pagamentos</h1>
+  <h1>BanParah</h1>
+  <h2>Concluído</h2>
   <canvas id="graficoPizza"></canvas>
   <div id="porcentagem"></div>
   <h2>Evolução dos Pagamentos</h2>
@@ -77,21 +82,6 @@
 
         document.getElementById("porcentagem").textContent = `${percentual}% concluído`;
 
-        // Plugin para texto no meio da pizza
-        const centerText = {
-          id: 'centerText',
-          beforeDraw(chart) {
-            const {ctx, width, height} = chart;
-            ctx.save();
-            ctx.font = 'bold 20px Arial';
-            ctx.fillStyle = '#333';
-            ctx.textAlign = 'center';
-            ctx.textBaseline = 'middle';
-            ctx.fillText(`${percentual}%`, width / 2, height / 2);
-            ctx.restore();
-          }
-        };
-
         // Gráfico de Pizza
         const ctxPizza = document.getElementById('graficoPizza').getContext('2d');
         new Chart(ctxPizza, {
@@ -111,8 +101,7 @@
                 position: 'bottom'
               }
             }
-          },
-          plugins: [centerText]
+          }
         });
 
         // Gráfico de Linha
