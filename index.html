@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Gráfico de Porcentagem</title>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <style>
+    body { font-family: Arial, sans-serif; padding: 20px; text-align: center; }
+    canvas { max-width: 400px; margin: auto; }
+  </style>
+</head>
+<body>
+  <h1>Gráfico de Porcentagem</h1>
+  <canvas id="graficoPizza"></canvas>
+
+  <script>
+    const ctx = document.getElementById('graficoPizza').getContext('2d');
+    new Chart(ctx, {
+      type: 'doughnut',
+      data: {
+        labels: ['Completo', 'Restante'],
+        datasets: [{
+          data: [70, 30], // <- Altere aqui a porcentagem
+          backgroundColor: ['#4CAF50', '#e0e0e0'],
+          borderWidth: 1
+        }]
+      },
+      options: {
+        cutout: '70%',
+        plugins: {
+          legend: {
+            display: true,
+            position: 'bottom'
+          }
+        }
+      }
+    });
+  </script>
+</body>
+</html>
