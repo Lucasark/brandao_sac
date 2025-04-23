@@ -6,35 +6,78 @@
   <title>Status de Pagamento</title>
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
   <style>
-    body { font-family: Arial, sans-serif; text-align: center; padding: 30px; }
-    canvas { max-width: 400px; margin: auto; }
+    body {
+      font-family: Arial, sans-serif;
+      text-align: center;
+      padding: 30px;
+    }
+    canvas {
+      max-width: 600px;
+      margin: 30px auto;
+      display: block;
+    }
     #porcentagem {
       font-size: 1.5em;
       margin-top: 20px;
       font-weight: bold;
     }
+    table {
+      margin: 40px auto;
+      border-collapse: collapse;
+      width: 90%;
+    }
+    th, td {
+      border: 1px solid #ccc;
+      padding: 6px 10px;
+      font-size: 14px;
+    }
+    th {
+      background-color: #f0f0f0;
+    }
+    tbody tr:nth-child(even) {
+      background-color: #f9f9f9;
+    }
   </style>
 </head>
 <body>
-  <h1>Concluido</h1>
-  <canvas id="graficoPagamentos"></canvas>
+  <h1>Gráficos de Pagamentos</h1>
+  <canvas id="graficoPizza"></canvas>
   <div id="porcentagem"></div>
+  <h2>Evolução dos Pagamentos</h2>
+  <canvas id="graficoLinha"></canvas>
+
+  <h2>Tabela de Parcelas</h2>
+  <table id="tabelaParcelas">
+    <thead>
+      <tr>
+        <th>Parcela</th>
+        <th>Juros</th>
+        <th>Amortização</th>
+        <th>Pagamento Parcial</th>
+        <th>Saldo Devedor</th>
+        <th>Pago</th>
+        <th>Data</th>
+        <th>Dia Pago</th>
+        <th>Dias Dif</th>
+        <th>Valor</th>
+        <th>Valor Total</th>
+      </tr>
+    </thead>
+    <tbody></tbody>
+  </table>
 
   <script>
-    // Lê o JSON local
     fetch('parcelas.json')
       .then(response => response.json())
       .then(data => {
-        // Conta quantos pagos e não pagos
-        let pagos = data.filter(p => p.pago === "S").length;
-        let naoPagos = data.filter(p => p.pago === "N").length;
+        const pagos = data.filter(p => p.pago === "S").length;
+        const naoPagos = data.filter(p => p.pago === "N").length;
+        const total = pagos + naoPagos;
+        const percentual = ((pagos / total) * 100).toFixed(1);
 
-        const percentual = ((pagos / data.length) * 100).toFixed(1);
-
-        // Exibe o percentual em texto abaixo do gráfico
         document.getElementById("porcentagem").textContent = `${percentual}% concluído`;
 
-        // Plugin para mostrar texto no centro do gráfico
+        // Plugin para texto no meio da pizza
         const centerText = {
           id: 'centerText',
           beforeDraw(chart) {
@@ -49,10 +92,12 @@
           }
         };
 
-        const ctx = document.getElementById('graficoPagamentos').getContext('2d');
-        new Chart(ctx, {
+        // Gráfico de Pizza
+        const ctxPizza = document.getElementById('graficoPizza').getContext('2d');
+        new Chart(ctxPizza, {
           type: 'pie',
           data: {
+            labels: ['Pagos', 'Não pagos'],
             datasets: [{
               data: [pagos, naoPagos],
               backgroundColor: ['#4CAF50', '#F44336'],
@@ -69,6 +114,64 @@
           },
           plugins: [centerText]
         });
+
+        // Gráfico de Linha
+        const parcelas = data.map(p => p.parcela);
+        const pagamentosParciais = data.map(p => p.pagamento_parcial);
+        const ctxLinha = document.getElementById('graficoLinha').getContext('2d');
+        new Chart(ctxLinha, {
+          type: 'line',
+          data: {
+            labels: parcelas,
+            datasets: [{
+              label: 'Pagamento Parcial (R$)',
+              data: pagamentosParciais,
+              fill: false,
+              borderColor: '#2196F3',
+              tension: 0.1,
+              pointRadius: 4,
+              pointBackgroundColor: '#2196F3'
+            }]
+          },
+          options: {
+            scales: {
+              x: {
+                title: {
+                  display: true,
+                  text: 'Número da Parcela'
+                }
+              },
+              y: {
+                title: {
+                  display: true,
+                  text: 'Valor Pago (R$)'
+                },
+                beginAtZero: false
+              }
+            }
+          }
+        });
+
+        // Preencher a Tabela
+        const tbody = document.querySelector('#tabelaParcelas tbody');
+        data.forEach(p => {
+          const row = document.createElement('tr');
+          row.innerHTML = `
+            <td>${p.parcela}</td>
+            <td>${p.juros}</td>
+            <td>${p.amortizacao}</td>
+            <td>${p.pagamento_parcial}</td>
+            <td>${p.saldo_devedor}</td>
+            <td>${p.pago}</td>
+            <td>${p.data}</td>
+            <td>${p.dia_pago || ''}</td>
+            <td>${p.dias_dif}</td>
+            <td>${p.valor}</td>
+            <td>${p.valor_total}</td>
+          `;
+          tbody.appendChild(row);
+        });
+
       })
       .catch(error => console.error('Erro ao carregar o JSON:', error));
   </script>
